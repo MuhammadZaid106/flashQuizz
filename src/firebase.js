@@ -1,35 +1,37 @@
-// Firebase initialization (uses environment variables)
+// Firebase initialization
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
+import { getAnalytics } from 'firebase/analytics';
 
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  apiKey: "AIzaSyDLusUXwA8gaSvX6GO0v3pn4TkTjbWBHtA",
+  authDomain: "quizz-5a459.firebaseapp.com",
+  projectId: "quizz-5a459",
+  storageBucket: "quizz-5a459.firebasestorage.app",
+  messagingSenderId: "341735074796",
+  appId: "1:341735074796:web:4a5270d360f86d754aaec9",
+  measurementId: "G-T3FHTFJFTT"
 };
 
+// Initialize Firebase
 let app = null;
 let auth = null;
+let analytics = null;
 
-// Only initialize Firebase when an API key is present to avoid runtime errors
-if (firebaseConfig.apiKey) {
-  try {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-  } catch (e) {
-    // initialization problems (invalid key, network) — log and continue with auth=null
-    // eslint-disable-next-line no-console
-    console.error('Firebase initialization error:', e);
-    app = null;
-    auth = null;
+try {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  // Initialize Analytics only in browser environment
+  if (typeof window !== 'undefined') {
+    analytics = getAnalytics(app);
   }
-} else {
+} catch (e) {
   // eslint-disable-next-line no-console
-  console.warn('Firebase not configured - missing REACT_APP_FIREBASE_API_KEY. Skipping initialization.');
+  console.error('Firebase initialization error:', e);
+  app = null;
+  auth = null;
+  analytics = null;
 }
 
-export { auth };
+export { auth, analytics };
 export default app;

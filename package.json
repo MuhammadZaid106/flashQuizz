@@ -4,6 +4,7 @@
   "description": "A React.js application for generating quizzes and flashcards from study documents",
   "private": true,
   "dependencies": {
+    "@firebase/auth": "^1.12.0",
     "firebase": "^12.7.0",
     "mammoth": "^1.6.0",
     "pdfjs-dist": "^3.11.174",
