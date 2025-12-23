@@ -39,6 +39,11 @@ A React.js web application that allows students to upload study documents (PDF, 
    - Go to [Firebase Console](https://console.firebase.google.com/)
    - Create a new project or use an existing one
    - Enable Google Authentication: Go to Authentication > Sign-in method > Google > Enable
+   - **IMPORTANT:** Add authorized domains:
+     - Go to Authentication > Settings > Authorized domains
+     - Click "Add domain"
+     - Add `localhost` (this allows localhost:3000 to work)
+     - Also add your production domain when deploying
    - Get your Firebase config: Project Settings > General > Your apps > Web app
    - Create a `.env` file in the root directory with:
      ```
