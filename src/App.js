@@ -45,7 +45,7 @@ function App() {
 
   // When Firebase auth user changes, sync it to app state and storage.
   useEffect(() => {
-    const aUser = authContext && authContext.currentUser ? authContext.currentUser : null;
+    const aUser = authContext?.currentUser || null;
     if (aUser) {
       const uid = aUser.uid;
       const existing = getUserProfile(uid);
@@ -56,7 +56,7 @@ function App() {
       storageSetCurrentUser(uid);
       setShowOnboarding(false);
     }
-  }, [authContext && authContext.currentUser]);
+  }, [authContext?.currentUser]);
   const handleOnboardingComplete = (payload) => {
     const { name, email, password, providerUid, provider } = payload || {};
     const normalized = (name || '').trim();
@@ -106,37 +106,6 @@ function App() {
     setShowOnboarding(false);
   };
 
-  const handleHeaderGoogleSignIn = async () => {
-    try {
-      if (!authContext || !authContext.signInWithGoogle) {
-        alert('Firebase authentication is not configured. Please set up Firebase environment variables in your .env file to use Google sign-in.');
-        return;
-      }
-      
-      const user = await authContext.signInWithGoogle();
-      if (user && user.uid) {
-        const profile = getUserProfile(user.uid);
-        if (!profile) {
-          saveUserProfile(user.uid, {
-            name: user.displayName || 'User',
-            email: user.email || '',
-            uid: user.uid,
-            provider: 'google'
-          });
-        }
-        setCurrentUser(user.uid);
-        storageSetCurrentUser(user.uid);
-        setShowOnboarding(false);
-      }
-    } catch (error) {
-      console.error('Google sign-in error:', error);
-      if (error.message && error.message.includes('Firebase not configured')) {
-        alert('Firebase is not configured. Please check your environment variables and ensure Firebase is properly set up.');
-      } else {
-        alert(`Google sign-in failed: ${error.message || 'Unknown error'}`);
-      }
-    }
-  };
 
   
 
@@ -192,6 +161,18 @@ function App() {
     setShowShareQuiz(false);
   };
 
+  const handleSignOut = async () => {
+    try {
+      if (authContext && authContext.logout) {
+        await authContext.logout();
+        setCurrentUser('default');
+        storageSetCurrentUser('default');
+      }
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors">
       {/* Sidebar */}
@@ -204,6 +185,7 @@ function App() {
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         currentUser={currentUser}
+        onSignOut={handleSignOut}
       />
 
       <OnboardingModal open={showOnboarding} onComplete={handleOnboardingComplete} onCancel={handleOnboardingCancel} />
@@ -242,6 +224,23 @@ function App() {
             <div className="flex items-center space-x-3">
               <div className="hidden sm:flex items-center space-x-3">
                 <UserSelector currentUser={currentUser} onChange={(u) => { setCurrentUser(u); storageSetCurrentUser(u); }} />
+                <ThemeToggle />
+              </div>
+              {/* Mobile: Sign Out Button */}
+              {authContext && authContext.currentUser && (
+                <button
+                  onClick={handleSignOut}
+                  className="sm:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Sign out"
+                  aria-label="Sign out"
+                >
+                  <svg className="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                </button>
+              )}
+              {/* Mobile: Theme Toggle */}
+              <div className="sm:hidden">
                 <ThemeToggle />
               </div>
             </div>
